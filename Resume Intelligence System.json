@@ -1,0 +1,560 @@
+{
+  "name": "Resume Intelligence System",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        2672,
+        1392
+      ],
+      "id": "322316d7-f0ab-48d5-ac64-6a2266006288",
+      "name": "Telegram Trigger",
+      "webhookId": "d861eb63-de99-4d4e-8312-a62e7ea62892",
+      "credentials": {
+        "telegramApi": {
+          "id": "VQ75blgEjp9ClZ6m",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Analyze the following Job Description.\n\n{{ $json.job_description }}"
+            },
+            {
+              "role": "system",
+              "content": "You are a Job Description Intelligence Engine.\n\nYour job is to analyze a Job Description and extract hiring requirements into structured JSON.\n\nYou are NOT a resume writer.\n\nYou are NOT a recruiter.\n\nYou only extract and classify information.\n\nAnalyze the Job Description and identify:\n\n1. Job Information\n   - Job Title\n   - Role Category\n   - Industry\n   - Seniority Level\n\n2. Required Skills\n   - Programming Languages\n   - Frameworks\n   - Libraries\n   - Databases\n   - Cloud Platforms\n   - DevOps Tools\n   - Analytics Tools\n   - Other Technical Skills\n\n3. Preferred Skills\n\n4. Required Technologies\n\n5. Project Requirements\n   - What type of projects are most relevant?\n   - What technologies should projects contain?\n   - What domains should projects belong to?\n\n6. Experience Requirements\n   - Years of experience\n   - Internship accepted\n   - Academic projects accepted\n\n7. Certifications\n   - Required\n   - Preferred\n\n8. Soft Skills\n\n9. Responsibilities\n\n10. ATS Keywords\n\n11. Resume Selection Guidance\n\nDetermine:\n\n- Most important skills\n- Most important technologies\n- Most important project domains\n- Most important certifications\n- Most important experience types\n\nReturn ONLY valid JSON.\n\nNever explain.\n\nNever summarize.\n\nNever use markdown.\n\nOutput schema:\n\n{\n  \"job_title\": \"\",\n  \"role_category\": \"\",\n  \"industry\": \"\",\n  \"seniority_level\": \"\",\n\n  \"required_skills\": [],\n  \"preferred_skills\": [],\n\n  \"programming_languages\": [],\n  \"frameworks\": [],\n  \"libraries\": [],\n  \"databases\": [],\n  \"cloud_platforms\": [],\n  \"devops_tools\": [],\n  \"analytics_tools\": [],\n  \"other_technologies\": [],\n\n  \"project_requirements\": {\n    \"preferred_domains\": [],\n    \"preferred_technologies\": [],\n    \"project_keywords\": []\n  },\n\n  \"experience_requirements\": {\n    \"years\": \"\",\n    \"internship_accepted\": true,\n    \"academic_projects_accepted\": true\n  },\n\n  \"required_certifications\": [],\n  \"preferred_certifications\": [],\n\n  \"soft_skills\": [],\n\n  \"responsibilities\": [],\n\n  \"ats_keywords\": [],\n\n  \"resume_selection_guidance\": {\n    \"priority_skills\": [],\n    \"priority_project_domains\": [],\n    \"priority_technologies\": [],\n    \"priority_certifications\": [],\n    \"priority_experience\": []\n  }\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        3488,
+        2560
+      ],
+      "id": "666781d9-1354-4f1c-8d01-106675d672e8",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "J6WTXKLGIzLUHfDu",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Requirements:\n\n{{ $json.jd_requirements }}\n\nCandidate Profile:\n\n{{ $json.candidate_profile }}\n\nGenerate:\n\n1. ATS Optimized Resume\n2. Skill Gap Analysis\n3. Certification Gap Analysis\n\nRequirements:\n\n* One Page Resume\n* ATS Friendly\n* Personal Section Unchanged\n* Education Section Unchanged\n* Achievements Unchanged\n* Maximum 5 Projects\n* Maximum 20 Skills\n* Hyperlinks for:\n\n  * LinkedIn\n  * GitHub\n  * Portfolio\n\nReturn JSON only.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are Resume Intelligence Engine.\n\nYou receive:\n\n1. Structured Job Requirements\n2. Structured Candidate Profile\n\nYour task is to build the most relevant ATS-friendly resume possible.\n\nYou MUST only use information present in the candidate profile.\n\nNever invent:\n\n* Skills\n* Certifications\n* Projects\n* Experience\n* Leadership Activities\n* Achievements\n\nNever fabricate metrics.\n\nPERSONAL INFORMATION\n\nAlways include exactly as provided.\n\nDo not modify:\n\n* Name\n* Email\n* Phone\n* LinkedIn\n* GitHub\n* Portfolio\n\nEDUCATION\n\nAlways include exactly as provided.\n\nDo not rewrite.\n\nACHIEVEMENTS\n\nAlways include.\n\nSKILLS SELECTION\n\nAnalyze:\n\n* Required Skills\n* Preferred Skills\n* ATS Keywords\n* Technologies\n\nSelect only relevant skills.\n\nPrioritize:\n\n1. Exact Match\n2. Related Technologies\n3. Transferable Skills\n\nMaximum 20 skills.\n\nPROJECT SELECTION\n\nEvaluate every project.\n\nScore:\n\n0-100\n\nBased on:\n\n* Technology Match\n* Domain Match\n* ATS Match\n* Industry Match\n\nSelect:\n\nMinimum 3\nMaximum 5\n\nHighest scoring projects first.\n\nCERTIFICATION SELECTION\n\nSelect only certifications relevant to:\n\n* Role\n* Industry\n* Technology Stack\n\nEXPERIENCE SELECTION\n\nSelect only relevant experience.\n\nPrioritize:\n\n* Impact\n* Technologies\n* Leadership\n* Results\n\nLEADERSHIP & ACTIVITIES\n\nSelect only entries that strengthen the application.\n\nSUMMARY\n\nGenerate a concise professional summary.\n\nMaximum 4 lines.\n\nUse:\n\n* Job Title\n* Key Technologies\n* Relevant Domains\n* Core Skills\n\nATS OPTIMIZATION\n\nNaturally incorporate ATS keywords.\n\nDo not keyword stuff.\n\nSKILL GAP ANALYSIS\n\nIdentify:\n\n* Missing Skills\n* Missing Technologies\n* Missing Certifications\n\nFor each gap provide:\n\n* priority\n* difficulty\n* estimated_learning_time\n\nReturn ONLY valid JSON.\n\nSchema:\n\n{\n\"job_title\":\"\",\n\"selected_summary\":\"\",\n\"selected_skills\":[],\n\"selected_projects\":[],\n\"selected_certifications\":[],\n\"selected_experience\":[],\n\"selected_leadership\":[],\n\"selected_activities\":[],\n\"skill_gaps\":[],\n\"certification_gaps\":[],\n\"ats_keywords\":[],\n\"resume_markdown\":\"\"\n}\n"
+        }
+      },
+      "id": "2bda8f37-c114-4f7c-b492-995fdd980d4c",
+      "name": "Resume Generator Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3856,
+        1328
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2928,
+        1552
+      ],
+      "id": "88d7e60e-1541-43bf-93cf-24b8875a7306",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "J6WTXKLGIzLUHfDu",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3824,
+        1520
+      ],
+      "id": "0d72c41a-3c37-4d86-b567-8aa09be4022b",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "J6WTXKLGIzLUHfDu",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7912196741",
+        "text": "bye",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5104,
+        1504
+      ],
+      "id": "c1a9b903-836e-4a9e-b048-534b2793ad61",
+      "name": "Send a text message",
+      "webhookId": "26de51d9-629c-4307-972b-a0d20eea9b83",
+      "credentials": {
+        "telegramApi": {
+          "id": "VQ75blgEjp9ClZ6m",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4608,
+        1232
+      ],
+      "id": "4b4f31ce-10bc-4538-bb38-6d0d390df3b6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "7912196741",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5104,
+        1232
+      ],
+      "id": "65ecfd46-3f46-4e99-9c26-f50ec74da3c4",
+      "name": "Send Resume.pdf",
+      "webhookId": "60367ad1-5b8e-448f-99d9-7aef3010b7a8",
+      "credentials": {
+        "telegramApi": {
+          "id": "VQ75blgEjp9ClZ6m",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentTemplateId": "3B900AC8-60BC-4A34-AD70-75F842D1D76D"
+      },
+      "type": "n8n-nodes-pdfmonkey.pdfMonkey",
+      "typeVersion": 1,
+      "position": [
+        4928,
+        1232
+      ],
+      "id": "51cecbc1-df97-4f7b-9409-ad8a881b083f",
+      "name": "Converts into Pdf File",
+      "credentials": {
+        "pdfMonkeyApi": {
+          "id": "eoQUWgCdtnObASnS",
+          "name": "PDFMonkey account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the following Job Description.\n\n{{ $json.job_description }}",
+        "options": {
+          "systemMessage": "You are a Job Description Intelligence Engine.\n\nYour job is to analyze a Job Description and extract hiring requirements into structured JSON.\n\nYou are NOT a resume writer.\n\nYou are NOT a recruiter.\n\nYou only extract and classify information.\n\nAnalyze the Job Description and identify:\n\n1. Job Information\n   - Job Title\n   - Role Category\n   - Industry\n   - Seniority Level\n\n2. Required Skills\n   - Programming Languages\n   - Frameworks\n   - Libraries\n   - Databases\n   - Cloud Platforms\n   - DevOps Tools\n   - Analytics Tools\n   - Other Technical Skills\n\n3. Preferred Skills\n\n4. Required Technologies\n\n5. Project Requirements\n   - What type of projects are most relevant?\n   - What technologies should projects contain?\n   - What domains should projects belong to?\n\n6. Experience Requirements\n   - Years of experience\n   - Internship accepted\n   - Academic projects accepted\n\n7. Certifications\n   - Required\n   - Preferred\n\n8. Soft Skills\n\n9. Responsibilities\n\n10. ATS Keywords\n\n11. Resume Selection Guidance\n\nDetermine:\n\n- Most important skills\n- Most important technologies\n- Most important project domains\n- Most important certifications\n- Most important experience types\n\nReturn ONLY valid JSON.\n\nNever explain.\n\nNever summarize.\n\nNever use markdown.\n\nOutput schema:\n\n{\n  \"job_title\": \"\",\n  \"role_category\": \"\",\n  \"industry\": \"\",\n  \"seniority_level\": \"\",\n\n  \"required_skills\": [],\n  \"preferred_skills\": [],\n\n  \"programming_languages\": [],\n  \"frameworks\": [],\n  \"libraries\": [],\n  \"databases\": [],\n  \"cloud_platforms\": [],\n  \"devops_tools\": [],\n  \"analytics_tools\": [],\n  \"other_technologies\": [],\n\n  \"project_requirements\": {\n    \"preferred_domains\": [],\n    \"preferred_technologies\": [],\n    \"project_keywords\": []\n  },\n\n  \"experience_requirements\": {\n    \"years\": \"\",\n    \"internship_accepted\": true,\n    \"academic_projects_accepted\": true\n  },\n\n  \"required_certifications\": [],\n  \"preferred_certifications\": [],\n\n  \"soft_skills\": [],\n\n  \"responsibilities\": [],\n\n  \"ats_keywords\": [],\n\n  \"resume_selection_guidance\": {\n    \"priority_skills\": [],\n    \"priority_project_domains\": [],\n    \"priority_technologies\": [],\n    \"priority_certifications\": [],\n    \"priority_experience\": []\n  }\n}"
+        }
+      },
+      "id": "3aa369fa-05b5-4cca-b566-351a7a8eb496",
+      "name": "JD Intelligence Engine Resume Intelligence Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2928,
+        1392
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "ht",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        4432,
+        1232
+      ],
+      "id": "448387d9-f276-4ecf-8c81-6d54485ed639",
+      "name": "Resume Markdown Compiler"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        4752,
+        1232
+      ],
+      "id": "508aa2a4-7127-45f8-9884-25df924564c5",
+      "name": "Resume HTML Template"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = JSON.parse($json.output);\n\nreturn [\n{\njson:{\nmessage:\n`Resume Generated Successfully\n\nMissing Skills:\n${result.skill_gaps.join(', ')}\n\nMissing Certifications:\n${result.certification_gaps.join(', ')}\n`\n}\n}\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4448,
+        1504
+      ],
+      "id": "81c05da2-be50-4d3d-9748-dca86b3031b0",
+      "name": "Skill Gap Formatter"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1YqSuSJ90ddbhZ9J0mJrb2g6MOEtM4gbBG9AVPgkPFeY/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=https://docs.google.com/spreadsheets/d/1YqSuSJ90ddbhZ9J0mJrb2g6MOEtM4gbBG9AVPgkPFeY/edit?usp=sharing",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5312,
+        1360
+      ],
+      "id": "32f119cf-3631-4a16-9281-3abf1b929611",
+      "name": "Resume Audit Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6HFHApaPes2I6JT3",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT json_build_object(\n    'personal', (SELECT row_to_json(p) FROM personal p LIMIT 1),\n    'education', (SELECT json_agg(e) FROM education e),\n    'skills', (SELECT json_agg(s) FROM skills s),\n    'projects', (SELECT json_agg(p) FROM projects p),\n    'experience', (SELECT json_agg(e) FROM experience e),\n    'leadership', (SELECT json_agg(l) FROM leadership l),\n    'activities', (SELECT json_agg(a) FROM activities a),\n    'achievements', (SELECT json_agg(a) FROM achievements a)\n) AS candidate_profile;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2992,
+        1200
+      ],
+      "id": "98a3b663-742f-4812-ba83-cf91bb849ba7",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "JNdqY4250kgfLdqi",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const jd = $json;\n\nconst profile = $json.candidate_profile;\n\nreturn [{\n  jd_requirements: jd,\n\n  candidate_profile: {\n    personal: profile.personal,\n    education: profile.education,\n    skills: profile.skills,\n    projects: profile.projects,\n    certifications: profile.certifications,\n    experience: profile.experience,\n    leadership: profile.leadership,\n    activities: profile.activities,\n    achievements: profile.achievements\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3616,
+        1344
+      ],
+      "id": "a7882264-2fd5-4b3c-bcd3-eb1c542e7b1e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3360,
+        1296
+      ],
+      "id": "2dcd766a-c907-4e24-9f66-189036553f12",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.parse($json.output).resume_markdown }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4272,
+        1232
+      ],
+      "id": "7f91f3b1-069c-43e1-8f0c-22d91c2a1b34",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "JD Intelligence Engine Resume Intelligence Engine",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "JD Intelligence Engine Resume Intelligence Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Resume Generator Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume Generator Agent1": {
+      "main": [
+        [
+          {
+            "node": "Skill Gap Formatter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Resume HTML Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Resume Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Resume.pdf": {
+      "main": [
+        [
+          {
+            "node": "Resume Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converts into Pdf File": {
+      "main": [
+        [
+          {
+            "node": "Send Resume.pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JD Intelligence Engine Resume Intelligence Engine": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Resume Markdown Compiler": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume HTML Template": {
+      "main": [
+        [
+          {
+            "node": "Converts into Pdf File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skill Gap Formatter": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Resume Generator Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Resume Markdown Compiler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c45c1e17-ab07-4ec9-9625-24b89f185d30",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7ba878cf6af82143edc70ea28d76804cec78b14e57ebeb442c559465803557d6"
+  },
+  "nodeGroups": [],
+  "id": "uDX9aw4yG6Gql12s",
+  "tags": []
+}
